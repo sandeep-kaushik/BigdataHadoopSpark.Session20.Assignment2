@@ -1,0 +1,15 @@
+
+
+
+val tweets =sc.textFile("/home/acadgild/Desktop/20.2/demonetization-tweets.csv").map(x => x.split(",")).filter(x => x.length>=2).map(x => (x(0).replaceAll("\"",""),x(1).replaceAll("\"","").toLowerCase)).map(x=>(x._1,x._2.split(" "))).toDF("id","words").registerTempTable("tweets")
+
+val explode = sqlContext.sql("select id as id,explode(words) as word from tweets").registerTempTable("tweet_word")
+
+val Afinn = sc.textFile("/home/acadgild/Desktop/20.2/AFINN").map(x=>x.split("\t")).map(x=>(x(0),x(1))).toDF("word","rating").registerTempTable("afinn")
+
+val join = sqlContext.sql("select t.id,AVG(a.rating) as rating from tweet_word t join afinn a ON t.word = a.word group by t.id ORDER BY rating DESC").show()
+
+
+
+
+
